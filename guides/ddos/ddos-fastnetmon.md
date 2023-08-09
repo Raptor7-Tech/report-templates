@@ -15,6 +15,8 @@ Certainly! Utilizing traffic flow (e.g., NetFlow, sFlow, IPFIX) can offer a more
 #### 1. **Dedicated Server**:
 FastNetMon should be installed on its dedicated server. The server must have enough processing power and RAM to analyze traffic at the rate at which it's incoming.
 
+![Alt text](fastnetmon-diag.png)
+
 #### 2. **Installation**:
 Install FastNetMon using the package manager of your operating system or by compiling from source.
 
@@ -117,9 +119,92 @@ fastnetmon_client
 
 This command displays real-time data about incoming/outgoing packets and potential attacks.
 
-Certainly! Integrating Grafana with FastNetMon offers a graphical view of the metrics, which makes monitoring and analyzing data more accessible and insightful. Here's a step-by-step guide to install Grafana and integrate it with FastNetMon:
 
-### Installing Grafana:
+
+## Traffig capturing for other routers
+
+### **Huawei NetFlow Setup**:
+
+1. **Enter system view**:
+   ```
+   system-view
+   ```
+
+2. **Define a NetStream flow exporter**:
+   ```
+   ip netstream export version 9
+   ```
+
+3. **Specify the export destination**:
+   ```
+   ip netstream export host [FastNetMon_Server_IP] 2055
+   ```
+
+4. **Enter interface view for the desired interface**:
+   ```
+   interface GigabitEthernet0/0/1
+   ```
+
+5. **Enable ingress NetStream on the interface**:
+   ```
+   ip netstream inbound
+   ```
+
+6. **Exit and saave system view**:
+   ```
+   quit
+   save
+   ```
+
+### **MikroTik Router Setup**:
+
+1. **Enable IP traffic flow**:
+   ```
+   /ip traffic-flow
+   set enabled=yes
+   ```
+
+2. **Set interfaces on which to monitor traffic**:
+   ```
+   /ip traffic-flow target add interface=all dst-address=[FastNetMon_Server_IP] port=2055 version=9
+   ```
+
+3. **Specify the active flow timeout (optional)**:
+   ```
+   /ip traffic-flow
+   set active-flow-timeout=1m
+   ```
+
+4. **Specify the inactive flow timeout (optional)**:
+   ```
+   /ip traffic-flow
+   set inactive-flow-timeout=15s
+   ```
+
+### **MikroTik WebFig/WinBox Setup for Traffic Flow**:
+
+   
+1. **Traffic Flow Settings**:
+   - Navigate to `IP` and then select `Traffic Flow`.
+   - Click on the `Settings` tab or button.
+   - Enable traffic flow by checking or setting the `Enabled` option.
+   - (Optional) Adjust the `Active Flow Timeout` and `Inactive Flow Timeout` settings if needed. The default usually works for most cases.
+
+2. **Specify the Target**:
+   - Under the `Targets` tab or section, click on `Add New` or the `+` button to add a new target.
+   - Set the `Interface` to the one you wish to monitor (or `all` to monitor all interfaces).
+   - In the `IP Address` field, enter the IP address of your FastNetMon server.
+   - Set the `Port` to `2055` or your desired port.
+   - Set the `Version` to `9` for NetFlow version 9.
+   - Apply the changes and save/close.
+
+3. **Apply & Save**:
+   - Depending on the interface, apply the changes and/or save your configuration to ensure the router retains the settings after a reboot.
+
+
+### Installing Grafana (UI Dashboard for FasstNetMon):
+
+![Alt text](grafana.png)
 
 #### 1. **Add Grafana Repository and Install**:
 
@@ -205,85 +290,3 @@ The Grafana community often shares custom dashboards. Look for a FastNetMon dash
 - In your Grafana, click on the `+` sign on the left panel and select "Import."
 - Enter the dashboard ID and load the dashboard.
 - Select the Graphite data source you just configured.
-
-Now you should have a comprehensive FastNetMon dashboard in Grafana displaying metrics in real-time.
-
-Certainly! Here are the quick bullet points to set up NetFlow on Huawei routers and MikroTik routers:
-
-### **Huawei NetFlow Setup**:
-
-1. **Enter system view**:
-   ```
-   system-view
-   ```
-
-2. **Define a NetStream flow exporter**:
-   ```
-   ip netstream export version 9
-   ```
-
-3. **Specify the export destination**:
-   ```
-   ip netstream export host [FastNetMon_Server_IP] 2055
-   ```
-
-4. **Enter interface view for the desired interface**:
-   ```
-   interface GigabitEthernet0/0/1
-   ```
-
-5. **Enable ingress NetStream on the interface**:
-   ```
-   ip netstream inbound
-   ```
-
-6. **Exit and saave system view**:
-   ```
-   quit
-   save
-   ```
-
-### **MikroTik Router Setup**:
-
-1. **Enable IP traffic flow**:
-   ```
-   /ip traffic-flow
-   set enabled=yes
-   ```
-
-2. **Set interfaces on which to monitor traffic**:
-   ```
-   /ip traffic-flow target add interface=all dst-address=[FastNetMon_Server_IP] port=2055 version=9
-   ```
-
-3. **Specify the active flow timeout (optional)**:
-   ```
-   /ip traffic-flow
-   set active-flow-timeout=1m
-   ```
-
-4. **Specify the inactive flow timeout (optional)**:
-   ```
-   /ip traffic-flow
-   set inactive-flow-timeout=15s
-   ```
-
-### **MikroTik WebFig/WinBox Setup for Traffic Flow**:
-
-   
-1. **Traffic Flow Settings**:
-   - Navigate to `IP` and then select `Traffic Flow`.
-   - Click on the `Settings` tab or button.
-   - Enable traffic flow by checking or setting the `Enabled` option.
-   - (Optional) Adjust the `Active Flow Timeout` and `Inactive Flow Timeout` settings if needed. The default usually works for most cases.
-
-2. **Specify the Target**:
-   - Under the `Targets` tab or section, click on `Add New` or the `+` button to add a new target.
-   - Set the `Interface` to the one you wish to monitor (or `all` to monitor all interfaces).
-   - In the `IP Address` field, enter the IP address of your FastNetMon server.
-   - Set the `Port` to `2055` or your desired port.
-   - Set the `Version` to `9` for NetFlow version 9.
-   - Apply the changes and save/close.
-
-3. **Apply & Save**:
-   - Depending on the interface, apply the changes and/or save your configuration to ensure the router retains the settings after a reboot.
