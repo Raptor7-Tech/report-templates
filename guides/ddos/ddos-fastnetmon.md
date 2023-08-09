@@ -25,6 +25,49 @@ sudo apt update
 sudo apt install fastnetmon
 ```
 
+#### Configuring BGP
+To configure BGP in FastNetMon, you typically interact with the `fastnetmon.conf` file. Here's a simple configuration for BGP:
+
+``` 
+enable_bgp_flow_spec_announces = on
+bgp_announce_host = on 
+bgp_announce_whole_subnet = on 
+bgp_flow_spec_announces_file_path = "/etc/fastnetmon/flow_spec_announces.txt"
+```
+
+#### **BGP Connection Details**:
+
+``` 
+bgp_community = "65001:666"
+bgp_next_hop = "10.0.0.1" 
+bgp_flow_spec_next_hop = "10.0.0.1" # the IP which will be used as next hop for blackholed route
+my_as = 65001
+bgp_peer_as = 65002
+bgp_peer_ip = "10.0.0.2"
+```
+
+You may want to specify a specific interface for the BGP session:
+``` 
+bgp_interface = "eth0"
+```
+
+And you can also adjust the prefix length for announcement:
+``` 
+minimum_prefix_length_to_announce = 24
+maximum_prefix_length_to_announce = 32
+```
+
+#### BGP in router (Mikrotik)
+
+Sure! Enabling BGP on a MikroTik router using the graphical user interface (GUI) can be done through Winbox, MikroTik's configuration tool. Here's a step-by-step guide to setting up BGP:
+
+* Add BGP Instance: `Routing` > `BGP` > `Instances` Enter your AS number, and set the name and router ID (usually your router's IP address)
+* Set Up BGP Peer: `Routing` > `BGP` > `Peers` Enter the remote address and AS number of the BGP peer. Set `Nexthop Choice` to Blachole.
+* Add Network Announcements** (if needed) : `Routing` > `BGP` > `Networks`. Enter the network you want to announce.
+* Configure Filters** (if needed): `Routing` > `Filters`. Create filters for incoming or outgoing prefixes as required for your network policy. Apply these filters to your BGP peers as necessary.
+* Adjust Firewall Rules, ensure that TCP port 179 is allowed between your MikroTik router and the BGP peer(s) (FastNetMon server).
+* Check BGP Status: `Routing` > `BGP` > `Peers`.
+
 #### 3. **Router/Switch Configuration for Traffic Flow**:
 
 You need to configure your router or switch to send traffic flow data (like NetFlow or sFlow) to the FastNetMon server.
