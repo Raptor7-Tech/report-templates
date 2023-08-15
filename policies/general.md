@@ -1,4 +1,4 @@
-### 1. General Policy
+# General Policy
 
 ## Use of Company Equipment
 - Only use company equipment for work-related tasks.
